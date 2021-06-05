@@ -1,0 +1,19 @@
+M= load('gracegsm60_2005-2015_swensongia300km.mat');
+value={{'time','grid_data_grace','str_year','str_month'}};
+year = [M.str_year]; month = [M.str_month]; time = [M.time];
+length = size(M.time,1);
+s= [M.grid_data_grace];  %Membaca Layer grid_data_grace dari data hasil olahan
+lat = -90:0.25:90; %0.25 resolusi grid
+lon = -180:0.25:179.75;
+[x, y] = meshgrid(lon, lat);
+for i=1:length;
+    V=s(:,:,i);
+    v=100.*V; %meter ke cm
+    nama = [year(i) month(i)];
+    namaFile = num2str(cell2mat(nama));
+    X = x(:); Y = y(:); EWH = v(:);
+    c = [X, Y, EWH];
+    writematrix(c,['grd_',namaFile,'.csv'],'Delimiter','semi')
+    %[K,L,M] = meshgrid(X, Y, EWH);
+    %[K,L,M] = xyz2grid(X, Y, EWH);
+end
