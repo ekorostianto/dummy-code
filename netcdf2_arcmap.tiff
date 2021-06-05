@@ -1,0 +1,23 @@
+# Import system modules
+import arcpy
+from arcpy import env
+from arcpy.sa import *
+# Input data source
+arcpy.env.workspace = "D:/College/Semester8/data/gldas/noah025_m_2_1/giovanni.gsfc.nasa.gov/Canop/nc"
+arcpy.env.overwriteOutput = True
+# Set output folder
+OutputFolder = "D:/College/Semester8/data/gldas/noah025_m_2_1/giovanni.gsfc.nasa.gov/Canop/tiff"
+# Loop through a list of files in the workspace
+NCfiles = arcpy.ListFiles("*.nc")
+for filename in NCfiles:
+	print("Processing: " + filename)
+	inNCfiles = arcpy.env.workspace + "/" + filename
+	fileroot =filename[0:(len(filename)-3)]
+	TempLayerFile ="GLDAS_NOAH025_M_2_1_CanopInt_inst"
+	outRaster = OutputFolder + "/" +fileroot
+	# Process: Make NetCDF Raster Layer
+	arcpy.MakeNetCDFRasterLayer_md(inNCfiles,"GLDAS_NOAH025_M_2_1_CanopInt_inst", "lon", "lat",TempLayerFile, "", "","BY_VALUE")
+	# Process: Copy Raster
+	arcpy.CopyRaster_management(TempLayerFile, outRaster + ".tif", "","", "", "NONE", "NONE", "")
+print "***DONE!!!"
+print arcpy.GetMessages()
