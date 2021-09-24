@@ -1,52 +1,29 @@
-import pandas as pd
-import numpy as np
-import matplotlib.pylab as plt
-import tensorflow as tf
-from keras.models import Model, Sequential
-from keras.layers import Input, Activation, Dense
-from keras.optimizers import SGD
+from IPython import get_ipython
+get_ipython().magic('reset -sf')
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
-data = pd.read_csv('E:/KP_2020/Progress/regresi/datatest.csv',',',
-                  usecols=['awal1','awal2','akhir1', 'akhir2'])
-A = data[['awal1','awal2','akhir1', 'akhir2']]
-matrix = np.array(A.values,'float')
-
-a = np.arange(1, 11)
-b = np.flip(a)
-X = np.concatenate((a, b, a, b), axis=0)
-
-y1 = matrix[:,0]
-y2 = matrix[:,1]
-y3 = matrix[:,2]
-y4 = matrix[:,3]
-
-Y = np.concatenate((y1, y2, y3, y4), axis=0)
-
-train_x = X
-train_y = Y
-# Create Network
-inputs = Input(shape=(1,))
-h_layer = Dense(8, activation='relu')(inputs)
-h_layer = Dense(4, activation='relu')(h_layer)
-outputs = Dense(1, activation='linear')(h_layer)
-model = Model(inputs=inputs, outputs=outputs)
-
-# Optimizer / Update Rule
-sgd = SGD(lr=0.001)
-# Compile the model with Mean Squared Error Loss
-model.compile(optimizer=sgd, loss='mse')
-
-# Train the network and save the weights after training
-model.fit(train_x, train_y, batch_size=40, epochs=1000, verbose=1)
-model.save_weights('weights.h5')
-
-# Predict training data
-predict = model.predict(np.array([26]))
-print('f(26) = ', predict)
-
-predict_y = model.predict(train_x)
-
-# Draw target vs prediction
-plt.plot(train_x, train_y, ‘r')
-	plt.plot(train_x, predict_y, 'b')
+df = pd.DataFrame([[0.000083,24.1],[0.000064,36.35],[0.00007,37.2],[0.00008,24.62],[0.000048,27.54],[0.00006,23.63],[0.000068,38.18],[0.000105,22.75],[0.000129,29.19],[0.000051,40.54],[0.00008,36.6],[0.000046,22.1],[0.00006,30.08],[0.000075,32.45],[0.00006,144.38],[0.000045,116.04],[0.000066,65.58],[0.000073,32.94],[0.000054,31.67],[0.000062,27.71],[0.000077,36.64],[0.000111,54.9]])
+df.columns = ['x', 'y']
+x_train = df['x'].values[:,np.newaxis]
+y_train = df['y'].values
+r2 = r2_score(y_train, x_train)
+lm = LinearRegression()
+lm.fit(x_train,y_train) #fase training
+print('Coefficient : ' + str(lm.coef_))
+print('Intercept : ' + str(lm.intercept_))
+print(r2)
+x_test = [[170],[171]] #data yang akan diprediksi
+p = lm.predict(x_test) #fase prediksi
+print(p) #hasil prediksi
+#prepare plot
+pb = lm.predict(x_train)
+dfc = pd.DataFrame({'x': df['x'],'y':pb})
+plt.scatter(df['x'],df['y'])
+plt.plot(dfc['x'],dfc['y'],color='red',linewidth=1)
+plt.xlabel('citra')
+plt.ylabel('insitu')
 plt.show()
